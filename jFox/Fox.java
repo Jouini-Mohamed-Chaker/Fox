@@ -14,7 +14,7 @@ public class Fox {
 
   public static void main(String[] args) throws Exception {
     if (args.length > 1) {
-      System.out.println("Usage: jlox [script]");
+      System.out.println("Usage: jFox [script]");
       System.exit(64);
     } else if (args.length == 1) {
       runFile(args[0]);
@@ -51,9 +51,12 @@ public class Fox {
     JScanner scanner = new JScanner(source);
     List<Token> tokens = scanner.scanTokens();
 
-    for (Token token : tokens) {
-      System.out.println(token);
-    }
+    Parser parser = new Parser(tokens);
+    Expr expression = parser.parse();
+
+    if(hadError) return;
+
+    System.out.println(new AstPrinter().print(expression));
   }
 
   static void error(int line, String message) {
@@ -64,4 +67,11 @@ public class Fox {
     System.err.println("[line " + line + "] Error" + where + ": " + message);
     hadError = true;
   }
+  static void error(Token token, String message){
+        if(token.type == TokenType.EOF){
+            report(token.type, " at end ",message);
+        } else {
+            report(Token.line), " at '"+token.lexeme + "'", message);
+        }
+    }
 }
